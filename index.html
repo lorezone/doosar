@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Doosar</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<link rel="stylesheet" href="styles.css" />
+	<script src="jquery-1.7.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+	<script src="confetti.js"></script>
+</head>
+
+<body>
+	
+	<img class="preload" src="img/cards.png" />
+	<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+		<h1 style="color: darkgray; font-family: 'Brush Script MT', cursive; margin: 0;">Doosar</h1>
+		<h4 style="color: darkgray; font-family: 'Brush Script MT', cursive; margin: 0;">...settle down!</h4>
+	</div>
+
+	<div id="card-table">
+		<button id="restart">Restart</button>
+		<button id="deal">DEAL</button>
+	</div>
+	
+	<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+		<div><em style="font-size: 12px;">Designated Suit: </em><span id="designated-suit" style="font-size: 26px;"></span></div>
+		<div style="text-align: right;">
+			<a id="mode-btn" data-bs-toggle="modal" data-bs-target="#modeModal" href="#" style="text-decoration: underline; text-decoration-color: darkgray;">
+				<sm style="font-size: 10px; color: darkgray;">Mode</sm>
+			</a>
+			<span style="color: darkgray;"> | </span>
+			<a id="analysis-btn" data-bs-toggle="modal" data-bs-target="#analysisModal" href="#" style="text-decoration: underline; text-decoration-color: darkgray;">
+				<sm style="font-size: 10px; color: darkgray;">Analysis</sm>
+			</a>
+			<span style="color: darkgray;"> | </span>
+			<a id="history-btn" data-bs-toggle="modal" data-bs-target="#historyModal" href="#" style="text-decoration: underline; text-decoration-color: darkgray;">
+				<sm style="font-size: 10px; color: darkgray;">History</sm>
+			</a>
+		</div>
+	</div>
+
+	<!-- Mode Modal -->
+	<div class="modal fade" id="modeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+		aria-labelledby="modeModalLabel" aria-hidden="true" style="z-index: 10000000 !important;">
+		<div class="modal-dialog modal-dialog-centered xmodal-dialog-scrollable xmodal-fullscreen">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="modeModalLabel">Game Mode</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" style="display: flex; flex-direction: column; align-items: center; font-style: italic;">
+					<select class="form-select mb-3" multiple id="mode-difficulty" onchange="changeModeDifficulty()">
+						<option style="font-style: italic;">Difficulty:</option>
+						<option selected>Easy</option>
+						<option>Normal</option>
+						<option>Hard</option>
+					</select>
+
+					<div class="input-group mb-3">
+						<label class="input-group-text" for="mode-speed">Speed</label>
+						<select class="form-select" id="mode-speed" onchange="changeModeSpeed()">
+							<option>Slow</option>
+							<option selected>Normal</option>
+							<option>Fast</option>
+						</select>
+					</div>
+					
+					<div class="input-group mb-3">
+						<label class="input-group-text" for="mode-openness">Openness</label>
+						<select class="form-select" id="mode-openness" onchange="changeModeOpenness()">
+							<option value="1">None (No peeking allowed at all)</option>
+							<option value="2" selected>Analysis (Analysis allowed)</option>
+							<option value="3">Probe (Clicking on a pile allowed)</option>
+							<option value="4">Glance (Clicking on a hand allowed)</option>
+							<option value="5">Flash (Flashes each hand each turn)</option>
+							<option value="6">Open (Open hands play)</option>
+						</select>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<!-- <i class="text-muted" style="justify-self: left; text-align: left; width: 60%;">Choose your game mode.</i> -->
+					<button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Analysis Modal -->
+	<div class="modal fade" id="analysisModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+		aria-labelledby="analysisModalLabel" aria-hidden="true" style="z-index: 10000000 !important;">
+		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable xmodal-fullscreen">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="analysisModalLabel">Analysis</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div id="analysis"></div>
+				</div>
+				<div class="modal-footer">
+					<i class="text-muted" style="justify-self: left; text-align: left; width: 60%;">Cards played so far.</i>
+					<button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- History Modal -->
+	<div class="modal fade" id="historyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+		aria-labelledby="historyModalLabel" aria-hidden="true"  style="z-index: 10000000 !important;">
+		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="historyModalLabel">History</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div id="history"></div>
+				</div>
+				<div class="modal-footer">
+					<i class="text-muted" style="justify-self: left; width: 60%;">Results from your earlier games.</i>
+					<button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="text-muted" style="text-align: center; margin-top: 55px; font-size: 12px; font-style: italic; color: darkgray;">
+		Bottom: <a id="bottom-score">0</a>, Right: <a id="right-score">0</a>, Top: <a id="top-score">0</a>, Left: <a
+			id="left-score">0</a>
+	</div>
+	
+	<!-- load this at the bottom so the #card-table element exists -->
+	<script src="deckType.js"></script>
+	<script src="cards.js"></script>
+	<script src="settings.js"></script>
+	<script src="interface.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+		integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+		integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+		crossorigin="anonymous"></script>
+
+	<!-- Auto scroll to align center of the page to center of the screen -->
+	<script>
+		window.addEventListener('load', function () {
+			const scale = 1; //window.devicePixelRatio || 1;
+			// Calculate total document height
+			const documentHeight = document.body.scrollHeight * scale;
+			const documentWidth = document.body.scrollWidth * scale;
+			// Get the viewport height
+			const viewportHeight = window.innerHeight;
+			const viewportWidth = window.innerWidth;
+			// Calculate the scroll position needed to center the page
+			const centerPositionVertical = (documentHeight / 2) - (viewportHeight / 2);
+			const centerPositionHorizontal = (documentWidth / 2) - (viewportWidth / 2);
+			// Scroll to that position (only for small devices)
+			if(window.innerWidth <= 1080) {
+				window.scrollBy({
+					top: 100,
+					behavior: 'smooth'  // Optional: makes the scroll smooth
+				});
+				// window.scrollTo({
+				// 	// top: centerPositionVertical,
+				// 	// left: centerPositionHorizontal,
+				// 	behavior: 'smooth'  // Optional: makes the scroll smooth
+				// });
+			}
+		});
+	</script>
+
+</body>
+</html>
